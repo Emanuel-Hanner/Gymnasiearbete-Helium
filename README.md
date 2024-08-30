@@ -3,7 +3,7 @@
 
 
 
-SETUP INSTRUCTIONS:
+SETUP INSTRUCTIONS FOR REFERENCE:
 
 Open Control Panel  >  Programs  > Turn Windows features on or off  >
     Enable “Virtual Machine Platform”,

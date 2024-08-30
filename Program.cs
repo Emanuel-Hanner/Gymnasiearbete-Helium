@@ -48,7 +48,7 @@ namespace Compiler
                 }
                 else if (fileContent[i] == ';') // SEMICOLONS 
                 {
-                    tokens.Add(new Token { Type = TokenType.Semicolon, Value = null });
+                    tokens.Add(new Token { Type = TokenType.Semicolon });
                 }
                 else if (fileContent[i] == '=') // EQUALS
                 {
@@ -82,6 +82,11 @@ namespace Compiler
                     {
                         stringContent += fileContent[i];
                         i++;
+                    }
+                    if (fileContent[i] != '"')
+                    {
+                        syntaxError = true;
+                        errorMessage = $"The string needs to be closed! At character {i-1}";
                     }
                     tokens.Add(new Token { Type = TokenType.String, Value = stringContent });
                 }
@@ -168,7 +173,7 @@ namespace Compiler
                 {
                     if (token.Value != null)
                     {
-                        tokenOutput += $"{token.Type} {token.Value}\n";
+                        tokenOutput += $"{token.Type}: {token.Value}\n";
                     }
                     else
                     {
