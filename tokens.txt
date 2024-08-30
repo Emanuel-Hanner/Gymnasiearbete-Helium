@@ -1,0 +1,20 @@
+Return
+Double 1337.69
+Semicolon
+Print
+Int 420
+Semicolon
+Variable test
+Equals
+String Hello, World!
+Semicolon
+Print
+Variable test
+Semicolon
+Print
+Int 23
+Plus
+Int 21
+Times
+Int 4
+Semicolon

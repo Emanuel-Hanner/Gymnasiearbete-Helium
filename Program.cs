@@ -5,12 +5,19 @@ namespace Compiler
 {
     public enum TokenType 
     {
-        Return,
-        Print,
-        String,
-        Int,
+        Divide,
         Double,
-        Semi
+        Equals,
+        Int,
+        Minus,
+        Modulo,
+        Plus,
+        Print,
+        Return,
+        Semicolon,
+        String,
+        Times,
+        Variable
     }
 
     public class Token
@@ -41,19 +48,51 @@ namespace Compiler
                 }
                 else if (fileContent[i] == ';') // SEMICOLONS 
                 {
-                    tokens.Add(new Token { Type = TokenType.Semi, Value = null });
+                    tokens.Add(new Token { Type = TokenType.Semicolon, Value = null });
+                }
+                else if (fileContent[i] == '=') // EQUALS
+                {
+                    tokens.Add(new Token { Type = TokenType.Equals });
+                }
+                else if (fileContent[i] == '+') // PLUS
+                {
+                    tokens.Add(new Token { Type = TokenType.Plus });
+                }
+                else if (fileContent[i] == '-') // MINUS
+                {
+                    tokens.Add(new Token { Type = TokenType.Minus });
+                }
+                else if (fileContent[i] == '/') // DIVIDE
+                {
+                    tokens.Add(new Token { Type = TokenType.Divide });
+                }
+                else if (fileContent[i] == '*') // TIMES
+                {
+                    tokens.Add(new Token { Type = TokenType.Times });
+                }
+                else if (fileContent[i] == '%') // MODULO
+                {
+                    tokens.Add(new Token { Type = TokenType.Modulo });
                 }
                 else if (fileContent[i] == '"') // STRINGS
                 {
-                    
+                    string stringContent = "";
+                    i++;
+                    while (i < fileContent.Length - 1 && fileContent[i] != '"')
+                    {
+                        stringContent += fileContent[i];
+                        i++;
+                    }
+                    tokens.Add(new Token { Type = TokenType.String, Value = stringContent });
                 }
-                else if (char.IsLetter(fileContent[i])) // KEYWORDS
+                else if (char.IsLetter(fileContent[i])) // KEYWORDS & VARIABLES
                 {
                     // RETURN
                     if (fileContent[i] == 'r' && i + 5 < fileContent.Length && fileContent.Substring(i, 6) == "return")
                     {
                         tokens.Add(new Token { Type = TokenType.Return});
                         i += 5; 
+                        continue;
                     }
 
                     // PRINT 
@@ -61,7 +100,16 @@ namespace Compiler
                     {
                         tokens.Add(new Token { Type = TokenType.Print });
                         i += 4; 
+                        continue;
                     }
+
+                    string variableName = fileContent[i].ToString();
+                    while (i < fileContent.Length - 1 && char.IsLetter(fileContent[i+1]))
+                    {
+                        variableName += fileContent[i+1];
+                        i++;
+                    }
+                    tokens.Add(new Token { Type = TokenType.Variable, Value = variableName });
                 }
                 else if (char.IsDigit(fileContent[i])) // NUMBERS 
                 {
@@ -114,10 +162,22 @@ namespace Compiler
             }
             else 
             {
+                var tokenOutput = "";
+
                 foreach (var token in tokens)
                 {
-                    Console.WriteLine($"Token Type: {token.Type}, Value: {token.Value}");
+                    if (token.Value != null)
+                    {
+                        tokenOutput += $"{token.Type} {token.Value}\n";
+                    }
+                    else
+                    {
+                        tokenOutput += $"{token.Type}\n";
+                    }
                 }
+
+                File.WriteAllText("tokens.txt", tokenOutput);
+                Console.WriteLine(tokenOutput);
             }
         }
     }
