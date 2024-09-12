@@ -36,7 +36,7 @@ namespace Compiler
 
         static void Main(string[] args)
         {
-            string fileContent = File.ReadAllText("helium.he");
+            string fileContent = File.ReadAllText("./compiler/helium.he");
 
             var tokens = new List<Token>();
 
@@ -181,7 +181,7 @@ namespace Compiler
                     }
                 }
 
-                File.WriteAllText("tokens.txt", tokenOutput);
+                File.WriteAllText("./compiler/output/tokens.txt", tokenOutput);
                 Console.WriteLine(tokenOutput);
             }
         }

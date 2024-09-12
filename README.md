@@ -12,6 +12,7 @@ Open Control Panel  >  Programs  > Turn Windows features on or off  >
     Restart if prompted.
 
 Open PowerShell as Admin
+    Install https://wslstorestorage.blob.core.windows.net/wslblob/wsl_update_x64.msi
     Install Ubuntu by running: wsl --install -d Ubuntu-22.04  
 
 Initialize Ubuntu & install NASM.
@@ -23,6 +24,7 @@ Initialize Ubuntu & install NASM.
         sudo apt install nasm
 
 Install VS Code.
+    Open VS Code
 
 Install .NET SDK
     sudo apt update
@@ -34,7 +36,7 @@ Install .NET SDK
     sudo apt install -y dotnet-sdk-8.0
 
 [Optional] Customize Shell by running: code ~/.bashrc
-    Add “PS1='\[\033[0;31m\]\W\[\033[0m\] \[\033[0;31m\]\$\[\033[0m\] '” to the end of the .bashrc file. 
+    Add “PS1='\[\033[0;31m\]\W\[\033[0m\] \[\033[0;31m\]\$\[\033[0m\] '” to the end of the .bashrc file. Save and exit. 
     Run source ~/.bashrc to apply the changes to your current terminal session. 
 
 Download GitHub Desktop and set up the repository or create a new C# Project with: dotnet new console -o Name
