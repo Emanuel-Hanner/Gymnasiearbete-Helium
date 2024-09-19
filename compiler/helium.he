@@ -1,5 +1,5 @@
-return 1337.69;
-print 420;
+Print(420);
 test = "Hello, World!";
-print test;
-print 23 + 21 * 4;
+Print(test);
+Print(2 + 3 * 4);
+Return(89);

@@ -40,6 +40,10 @@ namespace Compiler
 
             var tokens = new List<Token>();
 
+            int parenthesesLevel = 0; 
+            
+            Dictionary<int, Token> parenthesesParent = new Dictionary<int, Token>();
+
             for (int i = 0; i < fileContent.Length; i++)
             {
                 if (char.IsWhiteSpace(fileContent[i]) || fileContent[i] == '\n') // FORMATING
@@ -92,19 +96,21 @@ namespace Compiler
                 }
                 else if (char.IsLetter(fileContent[i])) // KEYWORDS & VARIABLES
                 {
+                    
+
                     // RETURN
-                    if (fileContent[i] == 'r' && i + 5 < fileContent.Length && fileContent.Substring(i, 6) == "return")
+                    if (fileContent[i] == 'R' && i + 6 < fileContent.Length && fileContent.Substring(i, 7) == "Return(")
                     {
                         tokens.Add(new Token { Type = TokenType.Return});
-                        i += 5; 
+                        i += 6; 
                         continue;
                     }
 
                     // PRINT 
-                    if (fileContent[i] == 'p' && i + 4 < fileContent.Length && fileContent.Substring(i, 5) == "print")
+                    if (fileContent[i] == 'P' && i + 5 < fileContent.Length && fileContent.Substring(i, 6) == "Print(")
                     {
-                        tokens.Add(new Token { Type = TokenType.Print });
-                        i += 4; 
+                        tokens.Add(new Token { Type = TokenType.Print, Value = "Start" });
+                        i += 5; 
                         continue;
                     }
 
@@ -116,6 +122,12 @@ namespace Compiler
                     }
                     tokens.Add(new Token { Type = TokenType.Variable, Value = variableName });
                 }
+                else if(fileContent[i] == ')')
+                {
+                    
+                }
+
+
                 else if (char.IsDigit(fileContent[i])) // NUMBERS 
                 {
                     string number = fileContent[i].ToString();
