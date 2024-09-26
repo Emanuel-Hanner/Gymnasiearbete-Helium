@@ -9,8 +9,10 @@ namespace Compiler
         Double,
         Equals,
         Int,
+        Length,
         Minus,
         Modulo,
+        Parenthesis,
         Plus,
         Print,
         Return,
@@ -40,45 +42,41 @@ namespace Compiler
 
             var tokens = new List<Token>();
 
-            int parenthesesLevel = 0; 
+            int parenthesisLevel = 0; 
             
-            Dictionary<int, Token> parenthesesParent = new Dictionary<int, Token>();
+            Dictionary<int, Token> parenthesisParent = new Dictionary<int, Token>();
 
             for (int i = 0; i < fileContent.Length; i++)
             {
-                if (char.IsWhiteSpace(fileContent[i]) || fileContent[i] == '\n') // FORMATING
-                {
-                    continue;
+
+    // SIGNS
+    // FORMATING
+                if (char.IsWhiteSpace(fileContent[i]) || fileContent[i] == '\n') { continue;}
+    // SEMICOLONS
+                else if (fileContent[i] == ';') { tokens.Add(new Token { Type = TokenType.Semicolon }); }
+    // EQUALS  
+                else if (fileContent[i] == '=') { tokens.Add(new Token { Type = TokenType.Equals }); }
+    // PLUS
+                else if (fileContent[i] == '+') { tokens.Add(new Token { Type = TokenType.Plus }); }
+    // MINUS
+                else if (fileContent[i] == '-') { tokens.Add(new Token { Type = TokenType.Minus }); }
+    // DIVIDE
+                else if (fileContent[i] == '/') { tokens.Add(new Token { Type = TokenType.Divide }); }
+    // TIMES
+                else if (fileContent[i] == '*') { tokens.Add(new Token { Type = TokenType.Times }); }
+    // MODULO
+                else if (fileContent[i] == '%') { tokens.Add(new Token { Type = TokenType.Modulo }); }
+
+    // PARENTHESIS
+                else if (fileContent[i] == '(') 
+                { 
+                    tokens.Add(new Token{ Type = TokenType.Parenthesis, Value = "Start" }); 
+                    parenthesisLevel++;
+                    parenthesisParent[parenthesisLevel] = new Token { Type = TokenType.Parenthesis, Value = "End" };
                 }
-                else if (fileContent[i] == ';') // SEMICOLONS 
-                {
-                    tokens.Add(new Token { Type = TokenType.Semicolon });
-                }
-                else if (fileContent[i] == '=') // EQUALS
-                {
-                    tokens.Add(new Token { Type = TokenType.Equals });
-                }
-                else if (fileContent[i] == '+') // PLUS
-                {
-                    tokens.Add(new Token { Type = TokenType.Plus });
-                }
-                else if (fileContent[i] == '-') // MINUS
-                {
-                    tokens.Add(new Token { Type = TokenType.Minus });
-                }
-                else if (fileContent[i] == '/') // DIVIDE
-                {
-                    tokens.Add(new Token { Type = TokenType.Divide });
-                }
-                else if (fileContent[i] == '*') // TIMES
-                {
-                    tokens.Add(new Token { Type = TokenType.Times });
-                }
-                else if (fileContent[i] == '%') // MODULO
-                {
-                    tokens.Add(new Token { Type = TokenType.Modulo });
-                }
-                else if (fileContent[i] == '"') // STRINGS
+
+    // STRINGS  
+                else if (fileContent[i] == '"') 
                 {
                     string stringContent = "";
                     i++;
@@ -94,26 +92,43 @@ namespace Compiler
                     }
                     tokens.Add(new Token { Type = TokenType.String, Value = stringContent });
                 }
-                else if (char.IsLetter(fileContent[i])) // KEYWORDS & VARIABLES
-                {
-                    
 
-                    // RETURN
+// KEYWORDS
+                else if (char.IsLetter(fileContent[i]) && char.IsUpper(fileContent[i]))
+                {
+    // RETURN
                     if (fileContent[i] == 'R' && i + 6 < fileContent.Length && fileContent.Substring(i, 7) == "Return(")
                     {
                         tokens.Add(new Token { Type = TokenType.Return});
+                        parenthesisLevel++;
+                        parenthesisParent[parenthesisLevel] = new Token { Type = TokenType.Return, Value = "End" };
                         i += 6; 
                         continue;
                     }
 
-                    // PRINT 
+    // PRINT 
                     if (fileContent[i] == 'P' && i + 5 < fileContent.Length && fileContent.Substring(i, 6) == "Print(")
                     {
                         tokens.Add(new Token { Type = TokenType.Print, Value = "Start" });
+                        parenthesisLevel++;
+                        parenthesisParent[parenthesisLevel] = new Token { Type = TokenType.Print, Value = "End" };
                         i += 5; 
                         continue;
                     }
+    // Length
+                    if (fileContent[i] == 'L' && i + 6 < fileContent.Length && fileContent.Substring(i, 7) == "Length(")
+                    {
+                        tokens.Add(new Token { Type = TokenType.Length, Value = "Start" });
+                        parenthesisLevel++;
+                        parenthesisParent[parenthesisLevel] = new Token { Type = TokenType.Length, Value = "End" };
+                        i += 6; 
+                        continue;
+                    }
+                }
 
+// VARIABLES
+                else if (char.IsLetter(fileContent[i])) 
+                {
                     string variableName = fileContent[i].ToString();
                     while (i < fileContent.Length - 1 && char.IsLetter(fileContent[i+1]))
                     {
@@ -122,9 +137,12 @@ namespace Compiler
                     }
                     tokens.Add(new Token { Type = TokenType.Variable, Value = variableName });
                 }
+                
+
                 else if(fileContent[i] == ')')
                 {
-                    
+                    tokens.Add(parenthesisParent[parenthesisLevel]);
+                    parenthesisLevel--;
                 }
 
 
@@ -169,7 +187,8 @@ namespace Compiler
                 
                 else
                 {
-                    Console.WriteLine($"Unknown: {fileContent[i]} at {i}");
+                    Console.WriteLine($"Unknown: {fileContent[i]} at {fileContent.Substring(0, i) + "\n\n"+ fileContent.Substring(i, fileContent.Length- 1 -i)}");
+                    
                 }
             }
 
@@ -187,7 +206,11 @@ namespace Compiler
                     {
                         tokenOutput += $"{token.Type}: {token.Value}\n";
                     }
-                    else
+                    else if (token.Type == TokenType.Semicolon)
+                    {
+                        tokenOutput += $"{token.Type}\n\n";
+                    }
+                    else 
                     {
                         tokenOutput += $"{token.Type}\n";
                     }

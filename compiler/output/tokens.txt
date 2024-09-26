@@ -1,20 +1,55 @@
 Print: Start
 Int: 420
+Print: End
 Semicolon
+
 Variable: test
 Equals
 String: Hello, World!
 Semicolon
+
 Print: Start
 Variable: test
+Print: End
 Semicolon
+
 Print: Start
 Int: 2
 Plus
+Length: Start
+String: abc
+Plus
+Parenthesis: Start
 Int: 3
 Times
 Int: 4
+Parenthesis: End
+Parenthesis: Start
+Parenthesis: Start
+Parenthesis: Start
+Int: 1
+Minus
+Int: 2
+Parenthesis: End
+Parenthesis: End
+Parenthesis: End
+Plus
+Int: 3
+Length: End
+Times
+Int: 2
+Print: End
 Semicolon
+
 Return
 Int: 89
+Return: End
 Semicolon
+
+Print: Start
+Length: Start
+String: abc
+Length: End
+Print: End
+Semicolon
+
