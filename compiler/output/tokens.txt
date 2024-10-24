@@ -1,6 +1,7 @@
-Print: Start
+Print
+ParenthesisStart
 Int: 420
-Print: End
+ParenthesisEnd
 Semicolon
 
 Variable: test
@@ -8,48 +9,60 @@ Equals
 String: Hello, World!
 Semicolon
 
-Print: Start
+Print
+ParenthesisStart
 Variable: test
-Print: End
+ParenthesisEnd
 Semicolon
 
-Print: Start
+Print
+ParenthesisStart
 Int: 2
 Plus
-Length: Start
+Length
+ParenthesisStart
 String: abc
 Plus
-Parenthesis: Start
+ParenthesisStart
 Int: 3
 Times
 Int: 4
-Parenthesis: End
-Parenthesis: Start
-Parenthesis: Start
-Parenthesis: Start
+ParenthesisEnd
+ParenthesisStart
+ParenthesisStart
+ParenthesisStart
 Int: 1
 Minus
 Int: 2
-Parenthesis: End
-Parenthesis: End
-Parenthesis: End
+ParenthesisEnd
+ParenthesisEnd
+ParenthesisEnd
 Plus
 Int: 3
-Length: End
+ParenthesisEnd
 Times
 Int: 2
-Print: End
+ParenthesisEnd
 Semicolon
 
 Return
+ParenthesisStart
 Int: 89
-Return: End
+ParenthesisEnd
 Semicolon
 
-Print: Start
-Length: Start
+Print
+ParenthesisStart
+Length
+ParenthesisStart
 String: abc
-Length: End
-Print: End
+ParenthesisEnd
+ParenthesisEnd
+Semicolon
+
+Print
+ParenthesisStart
+String: abbaa
+ParenthesisEnd
 Semicolon
 

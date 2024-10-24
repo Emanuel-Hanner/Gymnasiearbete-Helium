@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Compiler
@@ -12,7 +13,8 @@ namespace Compiler
         Length,
         Minus,
         Modulo,
-        Parenthesis,
+        ParenthesisStart,
+        ParenthesisEnd,
         Plus,
         Print,
         Return,
@@ -28,61 +30,89 @@ namespace Compiler
         public string? Value { get; set; }
     }
 
-
-    class Program
+    public class Lexer
     {
-        static bool syntaxError = false;
-        static string errorMessage = "";
+        public List<Token> Tokens { get; private set; } = new List<Token>();
 
-
-
-        static void Main(string[] args)
+        public void Analyze(string filePath)
         {
-            string fileContent = File.ReadAllText("./compiler/helium.he");
-
-            var tokens = new List<Token>();
-
+            string fileContent = File.ReadAllText(filePath);
             int parenthesisLevel = 0; 
-            
             Dictionary<int, Token> parenthesisParent = new Dictionary<int, Token>();
+
+            bool syntaxError = false;
+            string errorMessage = "";
 
             for (int i = 0; i < fileContent.Length; i++)
             {
-
-    // SIGNS
-    // FORMATING
-                if (char.IsWhiteSpace(fileContent[i]) || fileContent[i] == '\n') { continue;}
-    // SEMICOLONS
-                else if (fileContent[i] == ';') { tokens.Add(new Token { Type = TokenType.Semicolon }); }
-    // EQUALS  
-                else if (fileContent[i] == '=') { tokens.Add(new Token { Type = TokenType.Equals }); }
-    // PLUS
-                else if (fileContent[i] == '+') { tokens.Add(new Token { Type = TokenType.Plus }); }
-    // MINUS
-                else if (fileContent[i] == '-') { tokens.Add(new Token { Type = TokenType.Minus }); }
-    // DIVIDE
-                else if (fileContent[i] == '/') { tokens.Add(new Token { Type = TokenType.Divide }); }
-    // TIMES
-                else if (fileContent[i] == '*') { tokens.Add(new Token { Type = TokenType.Times }); }
-    // MODULO
-                else if (fileContent[i] == '%') { tokens.Add(new Token { Type = TokenType.Modulo }); }
-
-    // PARENTHESIS
+                // Skip whitespace
+                if (char.IsWhiteSpace(fileContent[i]) || fileContent[i] == '\n') 
+                {
+                    continue;
+                }
+                // Tokenize various symbols
+                else if (fileContent[i] == ';') 
+                {
+                    Tokens.Add(new Token { Type = TokenType.Semicolon });
+                }
+                else if (fileContent[i] == '=') 
+                {
+                    Tokens.Add(new Token { Type = TokenType.Equals });
+                }
+                else if (fileContent[i] == '+') 
+                {
+                    Tokens.Add(new Token { Type = TokenType.Plus });
+                }
+                else if (fileContent[i] == '-') 
+                {
+                    Tokens.Add(new Token { Type = TokenType.Minus });
+                }
+                else if (fileContent[i] == '/') 
+                {
+                    Tokens.Add(new Token { Type = TokenType.Divide });
+                }
+                else if (fileContent[i] == '*') 
+                {
+                    Tokens.Add(new Token { Type = TokenType.Times });
+                }
+                else if (fileContent[i] == '%') 
+                {
+                    Tokens.Add(new Token { Type = TokenType.Modulo });
+                }
                 else if (fileContent[i] == '(') 
                 { 
-                    tokens.Add(new Token{ Type = TokenType.Parenthesis, Value = "Start" }); 
+                    Tokens.Add(new Token { Type = TokenType.ParenthesisStart });
                     parenthesisLevel++;
-                    parenthesisParent[parenthesisLevel] = new Token { Type = TokenType.Parenthesis, Value = "End" };
+                    parenthesisParent[parenthesisLevel] = new Token { Type = TokenType.ParenthesisEnd };
                 }
-
-    // STRINGS  
+                else if (fileContent[i] == ')') 
+                {
+                    if (parenthesisLevel > 0)
+                    {
+                        Tokens.Add(parenthesisParent[parenthesisLevel]);
+                        parenthesisLevel--;
+                    }
+                    else
+                    {
+                        syntaxError = true;
+                        errorMessage = $"Unmatched closing parenthesis at character {i}.";
+                    }
+                }
                 else if (fileContent[i] == '"') 
                 {
                     string stringContent = "";
                     i++;
-                    while (i < fileContent.Length - 1 && fileContent[i] != '"')
+                    while (i < fileContent.Length && fileContent[i] != '"')
                     {
-                        stringContent += fileContent[i];
+                        if (fileContent[i] == '\\' && i + 1 < fileContent.Length) // Handle escape sequences
+                        {
+                            stringContent += fileContent[i + 1];
+                            i++;
+                        }
+                        else
+                        {
+                            stringContent += fileContent[i];
+                        }
                         i++;
                     }
                     if (fileContent[i] != '"')
@@ -90,117 +120,71 @@ namespace Compiler
                         syntaxError = true;
                         errorMessage = $"The string needs to be closed! At character {i-1}";
                     }
-                    tokens.Add(new Token { Type = TokenType.String, Value = stringContent });
+                    Tokens.Add(new Token { Type = TokenType.String, Value = stringContent });
                 }
-
-// KEYWORDS
-                else if (char.IsLetter(fileContent[i]) && char.IsUpper(fileContent[i]))
-                {
-    // RETURN
-                    if (fileContent[i] == 'R' && i + 6 < fileContent.Length && fileContent.Substring(i, 7) == "Return(")
-                    {
-                        tokens.Add(new Token { Type = TokenType.Return});
-                        parenthesisLevel++;
-                        parenthesisParent[parenthesisLevel] = new Token { Type = TokenType.Return, Value = "End" };
-                        i += 6; 
-                        continue;
-                    }
-
-    // PRINT 
-                    if (fileContent[i] == 'P' && i + 5 < fileContent.Length && fileContent.Substring(i, 6) == "Print(")
-                    {
-                        tokens.Add(new Token { Type = TokenType.Print, Value = "Start" });
-                        parenthesisLevel++;
-                        parenthesisParent[parenthesisLevel] = new Token { Type = TokenType.Print, Value = "End" };
-                        i += 5; 
-                        continue;
-                    }
-    // Length
-                    if (fileContent[i] == 'L' && i + 6 < fileContent.Length && fileContent.Substring(i, 7) == "Length(")
-                    {
-                        tokens.Add(new Token { Type = TokenType.Length, Value = "Start" });
-                        parenthesisLevel++;
-                        parenthesisParent[parenthesisLevel] = new Token { Type = TokenType.Length, Value = "End" };
-                        i += 6; 
-                        continue;
-                    }
-                }
-
-// VARIABLES
                 else if (char.IsLetter(fileContent[i])) 
                 {
-                    string variableName = fileContent[i].ToString();
-                    while (i < fileContent.Length - 1 && char.IsLetter(fileContent[i+1]))
+                    string identifier = "";
+                    while (i < fileContent.Length && (char.IsLetter(fileContent[i]) || char.IsDigit(fileContent[i])))
                     {
-                        variableName += fileContent[i+1];
+                        identifier += fileContent[i];
                         i++;
                     }
-                    tokens.Add(new Token { Type = TokenType.Variable, Value = variableName });
+                    i--; // Adjust for the increment in the while loop
+
+                    // Check for keywords
+                    if (identifier == "Return")
+                    {
+                        Tokens.Add(new Token { Type = TokenType.Return });
+                    }
+                    else if (identifier == "Print")
+                    {
+                        Tokens.Add(new Token { Type = TokenType.Print });
+                    }
+                    else if (identifier == "Length")
+                    {
+                        Tokens.Add(new Token { Type = TokenType.Length });
+                    }
+                    else
+                    {
+                        Tokens.Add(new Token { Type = TokenType.Variable, Value = identifier });
+                    }
                 }
-                
-
-                else if(fileContent[i] == ')')
-                {
-                    tokens.Add(parenthesisParent[parenthesisLevel]);
-                    parenthesisLevel--;
-                }
-
-
-                else if (char.IsDigit(fileContent[i])) // NUMBERS 
+                else if (char.IsDigit(fileContent[i])) 
                 {
                     string number = fileContent[i].ToString();
-
-                    for (int k = i + 1; k < fileContent.Length; k++)
+                    i++;
+                    while (i < fileContent.Length && (char.IsDigit(fileContent[i]) || fileContent[i] == '.'))
                     {
-                        if (char.IsDigit(fileContent[k]))
-                        {
-                            number += fileContent[k].ToString();
-                        }
-                        else if (fileContent[k] == '.')
-                        {
-                            if (!number.Contains('.') && char.IsDigit(fileContent[k+1]))
-                            {
-                                number += fileContent.Substring(k, 2).ToString();
-                                k += 1;
-                            }
-                            else 
-                            {
-                                syntaxError = true;
-                                errorMessage = $"That's not a valid number! At character {k}";
-                            }
-                        }
-                        else 
-                        {
-                            i = k-1;
-                            break;
-                        }
+                        number += fileContent[i];
+                        i++;
                     }
+                    i--; // Adjust for the increment in the while loop
+
                     if (number.Contains('.'))
                     {
-                        tokens.Add(new Token { Type = TokenType.Double, Value = number });
+                        Tokens.Add(new Token { Type = TokenType.Double, Value = number });
                     }
                     else 
                     {
-                        tokens.Add(new Token { Type = TokenType.Int, Value = number });
+                        Tokens.Add(new Token { Type = TokenType.Int, Value = number });
                     }
-                }                    
-                
+                }
                 else
                 {
-                    Console.WriteLine($"Unknown: {fileContent[i]} at {fileContent.Substring(0, i) + "\n\n"+ fileContent.Substring(i, fileContent.Length- 1 -i)}");
-                    
+                    Console.WriteLine($"Unknown: {fileContent[i]} at {i}");
                 }
             }
 
             if (syntaxError) 
             {
-                Console.WriteLine(errorMessage);  
+                Console.WriteLine(errorMessage);
             }
             else 
             {
                 var tokenOutput = "";
 
-                foreach (var token in tokens)
+                foreach (var token in Tokens)
                 {
                     if (token.Value != null)
                     {

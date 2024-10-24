@@ -4,3 +4,4 @@ Print(test);
 Print(2 + Length("abc" + (3 * 4)(((1-2))) + 3) * 2);
 Return(89);
 Print(Length("abc"));
+Print("abbaa");
