@@ -9,7 +9,7 @@ namespace Compiler
             var lexer = new Lexer();
             lexer.Analyze("./compiler/helium.he");
 
-            var parser = new Parser(lexer.Tokens);
+            var parser = new Parser(lexer.tokens);
             parser.Parse();
         }
     }

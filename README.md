@@ -1,5 +1,5 @@
 # Gymnasiearbete Compiler
- Emanuel & Hampus Gymnasiearbete.
+ Emanuels Gymnasiearbete.
 
 
 

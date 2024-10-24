@@ -1,6 +1,6 @@
 ; // THIS IS FOR OUR EDUCATIONAL PURPOSES ONLY, // ;
-; // WE NEED TO LEARN 'ASSEMBLY' SOMEHOW :D ... // ;
-
+; //   I NEED TO LEARN 'ASSEMBLY' SOMEHOW T-T   // ;
+ 
 
 section .bss
     input resb 128             ; Reserve 128 bytes for the input string
