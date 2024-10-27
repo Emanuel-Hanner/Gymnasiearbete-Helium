@@ -3,6 +3,48 @@ using System.IO;
 
 namespace Compiler
 {
+
+    /* This might turn into something, maybe Top-Down Parsing - Earley Parsing, (with Nodes) but im very unsure... ):
+    public abstract class Node
+    {
+        
+    }
+
+    
+    // Node for an integer literal
+    public class IntNode : Node
+    {
+        public int Value { get; }
+
+        public IntNode(int value)
+        {
+            Value = value;
+        }
+    }
+
+    // Node for a string literal
+    public class StringNode : Node
+    {
+        public string Value { get; }
+
+        public StringNode(string value)
+        {
+            Value = value;
+        }
+    }
+
+    // Print statement with either an IntNode or StringNode
+    public class PrintNode : Node
+    {
+        public Node Value { get; } // This can be either IntNode or StringNode
+
+        public PrintNode(Node value)
+        {
+            Value = value;
+        }
+    }
+    */
+    
     public enum ActionType
     {
         Add,
@@ -15,8 +57,9 @@ namespace Compiler
 
     public class Actions
     {
-        public ActionType Type { get; set; }
-        public string? Value { get; set; }
+        public ActionType Action { get; set; }  
+        public string? Type { get; set; }   // What variable to define
+        public string? Value { get; set; }  // What value to assign
     }
 
 
@@ -35,7 +78,7 @@ namespace Compiler
 
 
 
-            // I only want to parse While() the tokens include Print-statements.
+            // I only want to parse tokens While() they include Print-statements.
             
             // If Print statements can't be nested:
                 // then the first 'Print: Start' will be the only before the first 'Print: End'.
@@ -44,13 +87,61 @@ namespace Compiler
                 // then every executed/parsed Print-statementet can be removed from the list.
 
             // What about the semicolon following the Print statement? Will it allways be there?
+                // ..Yes the next token will always be a semicolon.
+                    // Subsecuently, should it be neccesary? 
+                    // What is the meaning of linebreaks (in a compiled language)?
 
 
             // 0. While Loop.
             // 1. Find 'Print: Start'.
             // 2. Find 'Print: End'.
-            // 3. Dynamic programming, buildig a parse tree Top-Down and Left-Right.
+            // 3. Dynamic programming, buildig a parse tree Top-Down and Left-Right. ...is it even dynamic programming?!??
                 // Rooted in definitions (Define) connected with modifications (i.e Add/Multiply for example).
+
+                // A self calling method is neccesary,
+                    // Input: 
+                        // A: A span of tokens that might include tokens not rooted in definitions.
+                        // B: A index (I don't remember what it's called) holding all previous defined tokens and sub-tokens
+                    // Output: 
+                        // A: Break if defined.
+                        // B: A span of tokens that includes one layer less than before..
+                    // Process:
+                        // Iterate through the loop.
+                            // Searching + puttin undefined in the front one layer at a time!??
+                                // For example: Print("abc" + string * 3) ---> 
+                                // Define string, Define 3, Multiply, add TO "abc".     
+                                // 
+                                //            Print(  )
+                                //               |
+                                //               |
+                                //              add
+                                //             /  \
+                                //            /    \
+                                //   Define "abc"   \
+                                //                   \
+                                //                 Multiply
+                                //                   /    \
+                                //                  /      \
+                                //         Define string    \
+                                //                           \
+                                //                        Define 3
+                                //
+                                //
+                                // Print(2 + 3 * 4); ---> Add(Mult(int(3), int(4)), int(2))
+                                //
+                                //
+                                //
+                                //
+                                //
+                                //
+                                //
+                                //
+                                //
+                                //
+                                //
+                                //
+                                //
+                                //
 
 
             while (tokens.Any(token => token.Type == TokenType.Print)) // LINQ Logic (Goated)
@@ -74,45 +165,66 @@ namespace Compiler
                     }
                 }
 
-                
-                // Dynamic Programming T-T
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-                
-                for (int i = 0; i < tokens.Count; i++)
+                // Loop through Print(interval); 
+                for (int i = startIndex+1; i < endIndex-startIndex; i++)
                 {
-
-                    string tokenOutput = "";
-
-                    if (tokens[i].Value != null)
+                    // if is pure --> define
+                    // else --> find reference (loop with interval (backtracking))
+                    // then move on 
+                    // spilt +&- and *&/ alternatively?
+                
+                    /*
+                    if (tokens[i].Type == TokenType.Int)
                     {
-                        tokenOutput += $"{tokens[i].Type}: {tokens[i].Value}\n";
+                        System.Console.WriteLine("yes " + tokens[i].Value);
+                    }   
+                    else {
+                        System.Console.WriteLine("no " + tokens[i].Value);
                     }
-                    else if (tokens[i].Type == TokenType.Semicolon)
+                    */
+                }
+
+
+                
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+                
+                // tokens.RemoveRange(startIndex, endIndex-startIndex+2);
+             
+                String tokenOutput = "";
+
+                foreach (Token token in tokens)
+                {
+                    if (token.Value != null)
                     {
-                        tokenOutput += $"{tokens[i].Type}\n\n";
+                        tokenOutput += $"{token.Type}: {token.Value}\n";
+                    }
+                    else if (token.Type == TokenType.Semicolon)
+                    {
+                        tokenOutput += $"{token.Type}\n\n";
                     }
                     else 
                     {
-                        tokenOutput += $"{tokens[i].Type}\n";
+                        tokenOutput += $"{token.Type}\n";
                     }
-
-                    Console.Write(tokenOutput);
                 }
+
+                Console.WriteLine(tokenOutput);
                 
-                tokens.RemoveRange(startIndex, endIndex-startIndex+1);
                 break;
             }
         }

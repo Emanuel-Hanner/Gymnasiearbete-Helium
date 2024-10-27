@@ -1,14 +1,4 @@
 Print: Start
-Int: 420
-Print: End
-Semicolon
-
-Variable: test
-Equals
-String: Hello, World!
-Semicolon
-
-Print: Start
 Variable: test
 Print: End
 Semicolon
@@ -18,12 +8,14 @@ Int: 2
 Plus
 Length: Start
 String: abc
+Length: End
 Plus
 Parenthesis: Start
 Int: 3
 Times
 Int: 4
 Parenthesis: End
+Times
 Parenthesis: Start
 Parenthesis: Start
 Parenthesis: Start
@@ -32,10 +24,9 @@ Minus
 Int: 2
 Parenthesis: End
 Parenthesis: End
-Parenthesis: End
 Plus
 Int: 3
-Length: End
+Parenthesis: End
 Times
 Int: 2
 Print: End

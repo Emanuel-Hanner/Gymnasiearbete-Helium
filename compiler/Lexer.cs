@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection.Metadata.Ecma335;
 
 namespace Compiler
 {
@@ -174,7 +175,6 @@ namespace Compiler
                 else
                 {
                     Console.WriteLine($"Unknown: {fileContent[i]} at {fileContent.Substring(0, i) + "\n\n"+ fileContent.Substring(i, fileContent.Length- 1 -i)}");
-                    
                 }
             }
 
