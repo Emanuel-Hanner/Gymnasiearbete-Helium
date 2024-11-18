@@ -4,7 +4,7 @@ using System.IO;
 namespace Compiler
 {
 
-    /* This might turn into something, maybe Top-Down Parsing - Earley Parsing, (with Nodes) but im very unsure... ):
+    /* This might turn into something, maybe Top-Down Parsing - Earley Parsing, (with Nodes)
     public abstract class Node
     {
         
