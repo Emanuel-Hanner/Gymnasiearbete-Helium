@@ -12,5 +12,6 @@ namespace Compiler
             var parser = new Parser(lexer.tokens);
             parser.Parse();
         }
+        
     }
 }
