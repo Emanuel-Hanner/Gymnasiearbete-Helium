@@ -5,9 +5,10 @@ section .data
     msga_len equ $ - msga           ; Length of msga
 
     num1 dq 10                      ; First number (64-bit integer)
-    num2 dq 20                      ; Second number (64-bit integer)
-    result_str db "Sum: ", 0        ; Prefix for the sum output
-    buffer db 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  ; Buffer for storing the result as a string
+    num2 dq 200                      ; Second number (64-bit integer)
+    result_str db "Sum: ", 0, 0, 0, 0, 0         ; Prefix for the sum output
+
+    buffer db 0   ; Buffer for storing the result as a string
     newline db 0xA                  ; Newline character
 
 section .text
@@ -34,7 +35,7 @@ _start:
 
     ; Print the result string prefix
     mov rsi, result_str             ; "Sum: "
-    mov rdx, 6                      ; Length of "Sum: "
+    mov rdx, equ $ - result_str                      ; Length of "Sum: "
     call print_string
 
     ; Print the converted sum from buffer
@@ -52,6 +53,16 @@ _start:
     xor rdi, rdi                    ; Exit code 0
     syscall                         ; Invoke kernel
 
+string_length:
+    xor rax, rax                    ; Clear rax (length counter)
+next_char:
+    cmp byte [rsi + rax], 0         ; Check if current char is null terminator
+    je done                         ; If yes, we're done
+    inc rax                         ; Increment the length counter
+    jmp next_char                   ; Repeat for the next character
+done:
+    ret                             ; Return with length in rax
+    
 print_string:
     mov rax, 1                      ; Syscall: write
     mov rdi, 1                      ; File descriptor: stdout
