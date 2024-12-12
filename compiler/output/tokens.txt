@@ -1,8 +1,5 @@
-Variable: test
-Equals
+Print: Start
 String: Hello, World!
+Print: End
 Semicolon
 
-Print: Start
-Variable: test
-Print: End

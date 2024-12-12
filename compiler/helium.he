@@ -1,2 +1,1 @@
-test = "Hello, World!";
-Print(test)
+Print("Hello, World!");
