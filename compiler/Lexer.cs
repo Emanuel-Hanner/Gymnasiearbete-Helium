@@ -183,29 +183,6 @@ namespace Compiler
             {
                 Console.WriteLine(errorMessage);
             }
-            else 
-            {
-                String tokenOutput = "";
-
-                foreach (Token token in tokens)
-                {
-                    if (token.Value != null)
-                    {
-                        tokenOutput += $"{token.Type}: {token.Value}\n";
-                    }
-                    else if (token.Type == TokenType.Semicolon)
-                    {
-                        tokenOutput += $"{token.Type}\n\n";
-                    }
-                    else 
-                    {
-                        tokenOutput += $"{token.Type}\n";
-                    }
-                }
-
-                File.WriteAllText("./compiler/output/tokens.txt", tokenOutput);
-                // Console.WriteLine(tokenOutput);
-            }
         }
     }
 }
