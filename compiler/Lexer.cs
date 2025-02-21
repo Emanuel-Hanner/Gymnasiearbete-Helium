@@ -174,7 +174,7 @@ namespace Compiler
                 
                 else
                 {
-                    Console.WriteLine($"Unknown: {fileContent[i]} at {fileContent.Substring(0, i) + "\n\n"+ fileContent.Substring(i, fileContent.Length- 1 -i)}");
+                    Console.WriteLine($"\n\n------------ Unknown Token: {fileContent[i]} ------------\n\n {fileContent.Substring(0, i+1)} <--- Here");
                 }
             }
 

@@ -27,6 +27,16 @@ namespace Compiler
         }
     }
 
+    public class VariabelNode : Node
+    {
+        public Node Value { get; }
+
+        public VariabelNode(Node value)
+        {
+            Value = value;
+        }
+    }
+
 
     public class Parser
     {
