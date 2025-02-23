@@ -7,14 +7,14 @@
             static void Main(string[] args)
             {
                 var lexer = new Lexer();
-                lexer.Analyze("./compiler/helium.he");
+                var tokens = lexer.Analyze("./compiler/helium.he");
                 
-                var parser = new Parser(lexer.tokens);
-                var ast = parser.Parse();
+                var parser = new Parser();
+                var ast = parser.Parse(tokens);
 
                 // Prints the Tokens & AST
                 PrintTokens(lexer.tokens);
-                PrintAst(ast, 0);
+                // PrintAst(ast, 0);
             }
 
 

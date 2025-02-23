@@ -34,7 +34,7 @@ namespace Compiler
     {
         public List<Token> tokens { get; private set; } = new List<Token>();
 
-        public void Analyze(string filePath)
+        public List<Token> Analyze(string filePath)
         {
             string fileContent = File.ReadAllText(filePath);
             int parenthesisLevel = 0; 
@@ -183,6 +183,8 @@ namespace Compiler
             {
                 Console.WriteLine(errorMessage);
             }
+
+            return tokens;
         }
     }
 }

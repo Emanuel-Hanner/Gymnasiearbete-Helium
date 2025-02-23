@@ -3,3 +3,28 @@ String: Hello, World!
 Print: End
 Semicolon
 
+Print: Start
+String: Hello, World!
+Print: End
+Semicolon
+
+Print: Start
+String: Hello, World!
+Print: End
+Semicolon
+
+Print: Start
+String: Hello, World!
+Print: End
+Semicolon
+
+Print: Start
+String: Hello, World!
+Print: End
+Semicolon
+
+Print: Start
+String: Hello, World!
+Print: End
+Semicolon
+

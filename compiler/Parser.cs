@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection.Metadata.Ecma335;
 
 namespace Compiler
 {
@@ -29,10 +30,12 @@ namespace Compiler
 
     public class VariabelNode : Node
     {
+        public string VariableName { get; }
         public Node Value { get; }
 
-        public VariabelNode(Node value)
+        public VariabelNode(String name, Node value)
         {
+            VariableName = name;
             Value = value;
         }
     }
@@ -40,19 +43,40 @@ namespace Compiler
 
     public class Parser
     {
-        private List<Token> tokens;
         private int currentTokenIndex;
 
-        public Parser(List<Token> tokens)
+        public List<(int, Node)> ast = new List<(int, Node)>();
+  
+
+
+        public List<(int, Node)> Parse(List<Token> tokens)
         {
-            this.tokens = tokens;
             currentTokenIndex = 0;
+
+            while (currentTokenIndex <= tokens.Count)
+            {
+                var (indentation, nodeType) = MatchStatement(tokens, currentTokenIndex);
+                ast.Add((indentation, nodeType));
+            }
+            
+
+            return ast;
         }
 
-        public Node Parse()
+        private (int, Node) MatchStatement(List<Token> tokens, int currentTokenIndex)
         {
-            return ParseStatement();
+            if (Match(TokenType.Print, "Start"))
+            {
+                return (1, ParsePrintStatement());
+            }
+            else if (Match(TokenType.Variable))
+            {
+                return (1, ParseVariableStatement(tokens, currentTokenIndex));
+            }
+
+            throw new Exception("Unexpected token");
         }
+
 
         private Node ParseStatement()
         {
@@ -71,10 +95,42 @@ namespace Compiler
 
             var value = ParseExpression();
 
-            Consume(TokenType.Print, "End");
-            Consume(TokenType.Semicolon);
+            if (Match(TokenType.Print, "End"))
+            {
+                Consume(TokenType.Print, "End");
+            }
+            else 
+            {
+                throw new Exception("Unexpected token");
+            }
+
+            if (Match(TokenType.Semicolon))
+            {
+                 Consume(TokenType.Semicolon);
+            }
+            else 
+            {
+                throw new Exception("Unexpected token");
+            }
 
             return new PrintNode(value);
+        }
+
+        private Node ParseVariableStatement(List<Token> tokens, int currentTokenIndex)
+        {
+            if (tokens[currentTokenIndex].Value == null)
+            {
+                throw new Exception("Variable name can not be null");
+            }
+            else   
+            {
+                var variable = Consume(TokenType.Variable);
+                Consume(TokenType.Equals);
+                var value = ParseExpression();
+                Consume(TokenType.Semicolon);
+            
+                return new VariabelNode(tokens[currentTokenIndex].Value, value);
+            }
         }
 
         private Node ParseExpression()
@@ -82,6 +138,10 @@ namespace Compiler
             if (Match(TokenType.String))
             {
                 return new StringNode(Consume(TokenType.String).Value);
+            }
+            else if (Match(TokenType.Variable))
+            {
+                return new VariabelNode(Consume(TokenType.Variable).Value);
             }
 
             throw new Exception("Unexpected token in expression");

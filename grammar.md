@@ -1,21 +1,21 @@
 $$
 \begin{align}
     [Program] &\to [\text{statement}]^* \\
-    [statement] &\to 
+    [Statement] &\to 
 
     \begin{cases}
         identifier = [\text{expression}]; \\
-        Print([\text{expression}]); \\
+        print([\text{expression}]); \\
     \end{cases}\\
 
-    [expression] &\to
+    [Expression] &\to
     \begin{cases}
-        term\ [(\text{``}+" | \text{``}-")\ Term]^*\\
+        term\ [(\text{``}+" | \text{``}-")\ term]^*\\
     \end{cases}\\
 
     [Term] &\to
     \begin{cases}
-        \text{Factor} \ [(\text{``}*" \ | \ \text{``}/" \ | \ \text{``}\%") \ \text{Factor}]^*
+        \text{factor} \ [(\text{``}*" \ | \ \text{``}/" \ | \ \text{``}\%") \ \text{factor}]^*
     \end{cases}
 
 
