@@ -10,92 +10,96 @@ namespace Compiler
 
     public class StringNode : Node
     {
+        public int ExecutionOrder { get; }
         public string Value { get; }
 
-        public StringNode(string value)
+        public StringNode(int exceptionOrder, string value)
         {
+            ExecutionOrder = exceptionOrder;
             Value = value;
         }
     }
 
+ 
     public class PrintNode : Node
     {
-        public Node Value { get; }
+        public int ExecutionOrder { get; }
 
-        public PrintNode(Node value)
+        public PrintNode(int exceptionOrder)
         {
-            Value = value;
+            ExecutionOrder = exceptionOrder;
         }
     }
+
 
     public class VariabelNode : Node
     {
+        public int ExecutionOrder { get; }
         public string VariableName { get; }
-        public Node Value { get; }
 
-        public VariabelNode(String name, Node value)
+        public VariabelNode(int exceptionOrder, String name)
         {
+            ExecutionOrder = exceptionOrder;
             VariableName = name;
-            Value = value;
         }
     }
+
 
 
     public class Parser
     {
+        public List<Node> ast = new List<Node>();
+
         private int currentTokenIndex;
-
-        public List<(int, Node)> ast = new List<(int, Node)>();
-  
+        private int executionOrder;
 
 
-        public List<(int, Node)> Parse(List<Token> tokens)
+        // The Parse-function called from Program.cs
+        public List<Node> Parse(List<Token> tokens)
         {
-            currentTokenIndex = 0;
+            currentTokenIndex = 0; 
+            executionOrder = 0;
 
-            while (currentTokenIndex <= tokens.Count)
-            {
-                var (indentation, nodeType) = MatchStatement(tokens, currentTokenIndex);
-                ast.Add((indentation, nodeType));
-            }
-            
+            int totalTokens = tokens.Count;
 
+            while (currentTokenIndex <= totalTokens) { ast.AddRange(ParseStatement(tokens, currentTokenIndex)); }
+        
             return ast;
         }
 
-        private (int, Node) MatchStatement(List<Token> tokens, int currentTokenIndex)
-        {
-            if (Match(TokenType.Print, "Start"))
-            {
-                return (1, ParsePrintStatement());
-            }
-            else if (Match(TokenType.Variable))
-            {
-                return (1, ParseVariableStatement(tokens, currentTokenIndex));
-            }
 
-            throw new Exception("Unexpected token");
+        // Deconstructs the Program into defined Statements 
+        private List<Node> ParseStatement(List<Token> tokens, int position)
+        {
+            Token currentToken = tokens[position];
+
+            if (MatchToken(currentToken, TokenType.Print, "Start"))
+            {
+                return [new PrintNode(executionOrder), .. ParsePrint(tokens, position)]; // ".." = the spread operator - a Collection Expression introduced with C#12
+            }
+            else if (MatchToken(currentToken, TokenType.Variable) && currentToken.Value != null)
+            {
+                return [new VariabelNode(executionOrder, currentToken.Value), .. ParseVariable(tokens, position)];
+            }  
+            else
+            {
+                throw new Exception("Unexpected token: A Statement is required");
+            }
         }
 
 
-        private Node ParseStatement()
+        // Parses Print Statments 
+        private List<Node> ParsePrint(List<Token> tokens, int position)
         {
-            if (Match(TokenType.Print, "Start"))
-            {
-                return ParsePrintStatement();
-            }
+            
 
-            throw new Exception("Unexpected token");
-        }
-
-        private Node ParsePrintStatement()
-        {
+            /*
             Consume(TokenType.Print, "Start");
        
 
             var value = ParseExpression();
 
-            if (Match(TokenType.Print, "End"))
+            if (MatchToken(TokenType.Print, "End"))
             {
                 Consume(TokenType.Print, "End");
             }
@@ -104,7 +108,7 @@ namespace Compiler
                 throw new Exception("Unexpected token");
             }
 
-            if (Match(TokenType.Semicolon))
+            if (MatchToken(TokenType.Semicolon))
             {
                  Consume(TokenType.Semicolon);
             }
@@ -112,12 +116,15 @@ namespace Compiler
             {
                 throw new Exception("Unexpected token");
             }
-
-            return new PrintNode(value);
+            
+            */
+            currentTokenIndex += 100;
+            return new List<Node>{new PrintNode(1)};
         }
 
-        private Node ParseVariableStatement(List<Token> tokens, int currentTokenIndex)
+        private List<Node> ParseVariable(List<Token> tokens, int position)
         {
+            /*
             if (tokens[currentTokenIndex].Value == null)
             {
                 throw new Exception("Variable name can not be null");
@@ -131,35 +138,47 @@ namespace Compiler
             
                 return new VariabelNode(tokens[currentTokenIndex].Value, value);
             }
+            */
+            currentTokenIndex += 100;
+            return new List<Node>{new PrintNode(1)};
         }
 
-        private Node ParseExpression()
+        private List<Node> ParseExpression()
         {
-            if (Match(TokenType.String))
+            /*
+            if (MatchToken(TokenType.String))
             {
                 return new StringNode(Consume(TokenType.String).Value);
             }
-            else if (Match(TokenType.Variable))
+            else if (MatchToken(TokenType.Variable))
             {
                 return new VariabelNode(Consume(TokenType.Variable).Value);
             }
 
             throw new Exception("Unexpected token in expression");
+            */
+
+            return new List<Node>();
         }
 
-        private Token Consume(TokenType type, string? value = null)
+        private void Consume(TokenType type, string? value = null)
         {
-            if (Match(type, value))
+            /*
+            if (MatchToken(type, value))
             {
                 return tokens[currentTokenIndex++];
             }
+           
 
             throw new Exception($"Expected token {type} with value {value}, but found {tokens[currentTokenIndex].Type} with value {tokens[currentTokenIndex].Value}");
+            */
         }
 
-        private bool Match(TokenType type, string? value = null)
+
+        // Checks if tokenToMatch is of the requested TokenType and Value
+        private bool MatchToken(Token tokenToMatch, TokenType type, string? value = null)
         {
-            return currentTokenIndex < tokens.Count && tokens[currentTokenIndex].Type == type && (value == null || value == tokens[currentTokenIndex].Value);
+            return tokenToMatch.Type == type && (value == null || value == tokenToMatch.Value);
         }
     }
 }
