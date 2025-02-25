@@ -6,24 +6,20 @@ namespace Compiler
     {
         static void Main(string[] args)
         {
-            
             var lexer = new Lexer();
             var tokens = lexer.Analyze("./compiler/helium.he");
-            
+            PrintTokens(tokens);
+
             var parser = new Parser();
             var ast = parser.Parse(tokens);
-
-            // Prints the Tokens & AST
-            PrintTokens(tokens);
             PrintAst(ast);
-            
         }
 
 
         static void PrintTokens(List<Token> tokens)
         {
 
-            String tokenOutput = "";
+            String tokenOutput = "\n\n------------ Token Output: ------------\n\n";
 
             foreach (Token token in tokens)
             {
@@ -42,29 +38,30 @@ namespace Compiler
             }
 
             File.WriteAllText("./compiler/output/tokens.txt", tokenOutput);
-            Console.WriteLine("\n\n------------ Token Output: ------------\n\n" + tokenOutput);
+            Console.WriteLine(tokenOutput);
         }
 
         
         static void PrintAst(List<Node> ast)
         {
-            Console.WriteLine("\n\n------------ AST Output: ------------\n");
+            String astOutput = "\n\n------------ AST Output: ------------\n";
 
-            foreach (Node node in ast) {
-
-                if (node is PrintNode printNode)
+            foreach (Node node in ast) 
+            {
+                // A "Switch Expression" - a handy and intuitive replacement for "Switch Statements"
+                astOutput += node switch
                 {
-                    Console.WriteLine($"{Indentation(printNode.ExecutionOrder)}Print:");
-                }
-                else if (node is StringNode stringNode)
-                {
-                    Console.WriteLine($"{Indentation(stringNode.ExecutionOrder)}String: {stringNode.Value}");
-                }
-                else
-                {
-                    Console.WriteLine($"Unknown node type");
-                }
+                    PrintNode printNode => $"\n{Indentation(printNode.ExecutionOrder)}Print:\n",
+                    StringNode stringNode => $"{Indentation(stringNode.ExecutionOrder)}String: {stringNode.Value}\n",
+                    PlusNode plusNode => $"{Indentation(plusNode.ExecutionOrder)}Plus\n", // removing these "\n" can give better styling
+                    MinusNode minusNode => $"{Indentation(minusNode.ExecutionOrder)}Minus\n", // removing these "\n" can give better styling
+                    IntNode intNode => $"{Indentation(intNode.ExecutionOrder)}Int: {intNode.Value}\n",
+                    _ => throw new Exception("Unknown Node-type!"), // "_" (blank) represents the default/"else" option 
+                };
             } 
+
+            File.WriteAllText("./compiler/output/ast.txt", astOutput);
+            Console.WriteLine(astOutput);
         }
 
         static string Indentation(int amount)

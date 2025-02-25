@@ -1,1 +1,4 @@
-Print("Hello, World!");
+Print("Hello, World!" + "test" + "test" + "test" + "test"  + "abc");
+Print("Hello, World!" + "abc");
+Print("123abc");
+Print(5 - 2);

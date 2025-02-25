@@ -1,0 +1,29 @@
+
+
+------------ AST Output: ------------
+
+Print:
+  String: Hello, World!
+  Plus
+  String: test
+  Plus
+  String: test
+  Plus
+  String: test
+  Plus
+  String: test
+  Plus
+  String: abc
+
+Print:
+  String: Hello, World!
+  Plus
+  String: abc
+
+Print:
+  String: 123abc
+
+Print:
+  Int: 5
+  Minus
+  Int: 2
