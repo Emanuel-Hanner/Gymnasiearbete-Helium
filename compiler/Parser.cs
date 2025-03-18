@@ -8,14 +8,14 @@ namespace Compiler
 {
     public abstract class Node { } // An "abstract class" - a class of classes / container for subclasses
 
-    public class StringNode : Node
+    public class StringNode : Node   // Note to self: Look over public/private <--------------------------------------- LOOK HERE 
     {
-        public int ExecutionOrder { get; }
+        public int ExecutionOrder  { get; }
         public string Value { get; }
 
-        public StringNode(int exceptionOrder, string value)
+        public StringNode(int executionOrder, string value)
         {
-            ExecutionOrder = exceptionOrder;
+            ExecutionOrder = executionOrder;
             Value = value;
         }
     }
@@ -25,21 +25,21 @@ namespace Compiler
     {
         public int ExecutionOrder { get; }
 
-        public PrintNode(int exceptionOrder)
+        public PrintNode(int executionOrder)
         {
-            ExecutionOrder = exceptionOrder;
+            ExecutionOrder = executionOrder;
         }
     }
 
 
-    public class VariabelNode : Node
+    public class VariableNode : Node
     {
         public int ExecutionOrder { get; }
         public string VariableName { get; }
 
-        public VariabelNode(int exceptionOrder, String name)
+        public VariableNode(int executionOrder, String name)
         {
-            ExecutionOrder = exceptionOrder;
+            ExecutionOrder = executionOrder;
             VariableName = name;
         }
     }
@@ -48,9 +48,9 @@ namespace Compiler
     {
         public int ExecutionOrder { get; }
 
-        public PlusNode(int exceptionOrder)
+        public PlusNode(int executionOrder)
         {
-            ExecutionOrder = exceptionOrder;
+            ExecutionOrder = executionOrder;
         }
     }
 
@@ -58,9 +58,9 @@ namespace Compiler
     {
         public int ExecutionOrder { get; }
 
-        public MinusNode(int exceptionOrder)
+        public MinusNode(int executionOrder)
         {
-            ExecutionOrder = exceptionOrder;
+            ExecutionOrder = executionOrder;
         }
     }
 
@@ -69,9 +69,9 @@ namespace Compiler
         public int ExecutionOrder { get; }
         public int Value { get; }
 
-        public IntNode(int exceptionOrder, int value)
+        public IntNode(int executionOrder, int value)
         {
-            ExecutionOrder = exceptionOrder;
+            ExecutionOrder = executionOrder;
             Value = value;
         }
     }
@@ -80,10 +80,8 @@ namespace Compiler
 
     public class Parser
     {
-        public List<Token> tokens;
+        public List<Token> tokens = new List<Token>();
         public List<Node> ast = new List<Node>();
-
-        private int executionOrder;
 
 
         // The Parse-function called from Program.cs
@@ -97,7 +95,7 @@ namespace Compiler
         }
 
 
-        // Deconstructs the Program into defined Statements 
+        // Deconstructs the Program into defined Statements: Print or Variable
         private List<Node> ParseStatement(int localOrder)
         {
             Token currentToken = tokens[0];
@@ -110,11 +108,12 @@ namespace Compiler
             }
             else if (Match(currentToken, TokenType.Variable) && currentToken.Value != null)
             {
-                return [new VariabelNode(localOrder, currentToken.Value), .. ParseVariable(localOrder += 1)];
+                Consume();
+                return [new VariableNode(localOrder, currentToken.Value), .. ParseVariable(localOrder += 1)];
             }  
             else
             {
-                throw new Exception("Unexpected token: A Statement is required");
+                throw new Exception($"Unexpected token: {currentToken.Type} - A Statement is required");
             }
         }
 
@@ -126,15 +125,20 @@ namespace Compiler
             Token token = tokens[0];
 
             // Takes the first term
-            if (Match(token, TokenType.String))
+            if (Match(token, TokenType.String) && token.Value != null)
             {  
                 printTree.Add(new StringNode(localOrder, token.Value));
                 Consume(); 
             }
-            else if (Match(token, TokenType.Int))
+            else if (Match(token, TokenType.Int) && token.Value != null)
             {
                 printTree.Add(new IntNode(localOrder, int.Parse(token.Value)));
                 Consume(); 
+            }
+            else if (Match(token, TokenType.Variable) && token.Value != null)
+            {
+                printTree.Add(new VariableNode(localOrder, token.Value));
+                Consume();
             }
             else 
             {
@@ -152,9 +156,46 @@ namespace Compiler
             return printTree;
         }
 
-        private List<Node> ParseVariable(int order)
+        // Parses Variable Declerations
+        private List<Node> ParseVariable(int localOrder)
         {
-            return new List<Node>{new PrintNode(1)};
+            List<Node> variableTree = new List<Node>();
+            Token token = tokens[0];
+
+            if (Match(token, TokenType.Equals))
+            {
+                Consume();
+                token = tokens[0];
+
+                if (Match(token, TokenType.String) && token.Value != null)
+                {  
+                    variableTree.Add(new StringNode(localOrder, token.Value));
+                    Consume(); 
+                }
+                else if (Match(token, TokenType.Int) && token.Value != null)
+                {
+                    variableTree.Add(new IntNode(localOrder, int.Parse(token.Value)));
+                    Consume(); 
+                }
+                else if (Match(token, TokenType.Variable) && token.Value != null)
+                {
+                    variableTree.Add(new VariableNode(localOrder, token.Value));
+                    Consume();
+                }
+            }
+            else
+            {
+                throw new Exception($"Unexpected token: {token.Type} - An Equals Sign is required for Variable declaration!");
+            }
+
+            while (tokens.Count > 0 && !Match(tokens[0], TokenType.Semicolon))
+            { 
+                variableTree.AddRange(ParseExpression(localOrder)); 
+            }
+
+            Consume(/*Semicolon*/);
+            
+            return variableTree;
         }
 
 
@@ -169,7 +210,7 @@ namespace Compiler
                 Consume();
                 token = tokens[0];
 
-                if (token.Type == TokenType.String)
+                if (token.Type == TokenType.String && token.Value != null)
                 {
                     expressionTree.Add(new StringNode(localOrder, token.Value));
                     Consume();
@@ -177,6 +218,11 @@ namespace Compiler
                 else if (token.Type == TokenType.Int)
                 {
                     expressionTree.Add(new PlusNode(localOrder));
+                    Consume();
+                }
+                else if (Match(token, TokenType.Variable) && token.Value != null)
+                {
+                    expressionTree.Add(new VariableNode(localOrder, token.Value));
                     Consume();
                 }
                 else 
@@ -190,14 +236,19 @@ namespace Compiler
                 Consume();
                 token = tokens[0];
 
-                if (token.Type == TokenType.String)
+                if (token.Type == TokenType.String && token.Value != null)
                 {
                     expressionTree.Add(new StringNode(localOrder, token.Value));
                     Consume();
                 }
-                else if (token.Type == TokenType.Int)
+                else if (token.Type == TokenType.Int && token.Value != null)
                 {
                     expressionTree.Add(new IntNode(localOrder, int.Parse(token.Value)));
+                    Consume();
+                }
+                else if (Match(token, TokenType.Variable) && token.Value != null)
+                {
+                    expressionTree.Add(new VariableNode(localOrder, token.Value));
                     Consume();
                 }
                 else 
@@ -207,19 +258,12 @@ namespace Compiler
             }
             else 
             {
-                throw new Exception("Unknown Term Operator!");
+                throw new Exception($"Unknown Term Operator! ({token.Type})");
             }
 
             return expressionTree;
         }
 
-        private List<Node> ContinueParsingExpression(int localOrder)
-        {
-            List<Node> result = new List<Node>();
-            Console.WriteLine("Hello " + localOrder);
-            Consume();
-            return result;
-        }
 
         private void Consume()
         {

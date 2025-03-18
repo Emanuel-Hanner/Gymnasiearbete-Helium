@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Formats.Tar;
 
 namespace Compiler
 {
@@ -13,6 +14,12 @@ namespace Compiler
             var parser = new Parser();
             var ast = parser.Parse(tokens);
             PrintAst(ast);
+
+            var generator = new Generator();
+            var assembly = generator.Generate(ast);
+            File.WriteAllText("./compiler/output/assembly.asm", assembly);
+            System.Console.WriteLine("\n\n------------ Generator Output: ------------\n\n" + assembly);
+            System.Console.WriteLine("\n\n------------ Assembly Output: ------------\n\n");
         }
 
 
@@ -51,11 +58,12 @@ namespace Compiler
                 // A "Switch Expression" - a handy and intuitive replacement for "Switch Statements"
                 astOutput += node switch
                 {
-                    PrintNode printNode => $"\n{Indentation(printNode.ExecutionOrder)}Print:\n",
+                    PrintNode printNode => $"{Indentation(printNode.ExecutionOrder)}Print:\n",
                     StringNode stringNode => $"{Indentation(stringNode.ExecutionOrder)}String: {stringNode.Value}\n",
                     PlusNode plusNode => $"{Indentation(plusNode.ExecutionOrder)}Plus\n", // removing these "\n" can give better styling
                     MinusNode minusNode => $"{Indentation(minusNode.ExecutionOrder)}Minus\n", // removing these "\n" can give better styling
                     IntNode intNode => $"{Indentation(intNode.ExecutionOrder)}Int: {intNode.Value}\n",
+                    VariableNode variableNode => $"{Indentation(variableNode.ExecutionOrder)}Variable: {variableNode.VariableName}\n",
                     _ => throw new Exception("Unknown Node-type!"), // "_" (blank) represents the default/"else" option 
                 };
             } 
@@ -66,7 +74,14 @@ namespace Compiler
 
         static string Indentation(int amount)
         {
-            return new string(' ', 2 * amount);
+            string indentation = "";
+
+            if (amount == 0)
+            {
+                indentation += "\n";
+            }
+
+            return indentation + new string(' ', 2 * amount);
         }
     }
 }

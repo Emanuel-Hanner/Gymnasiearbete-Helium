@@ -4,35 +4,6 @@
 
 Print: Start
 String: Hello, World!
-Plus
-String: test
-Plus
-String: test
-Plus
-String: test
-Plus
-String: test
-Plus
-String: abc
-Print: End
-Semicolon
-
-Print: Start
-String: Hello, World!
-Plus
-String: abc
-Print: End
-Semicolon
-
-Print: Start
-String: 123abc
-Print: End
-Semicolon
-
-Print: Start
-Int: 5
-Minus
-Int: 2
 Print: End
 Semicolon
 
