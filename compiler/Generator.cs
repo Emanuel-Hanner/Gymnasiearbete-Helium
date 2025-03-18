@@ -14,14 +14,12 @@ public class Generator()
     public string Generate(List<Node> ast)
     {
         int index = 0;
-        System.Console.WriteLine("yes");
 
         if (ast[0] is PrintNode)
         {
             if (ast[1] is StringNode)
             {
                 StringNode stringNode = (StringNode)ast[1];
-                System.Console.WriteLine("yes2");
                 
                 sectionData += $"    msg{index} db \"{stringNode.Value}\", 0xA    ; String {index} with newline\n    msg{index}_len equ $ - msg{0}            ; Length of msg{0}";
 
